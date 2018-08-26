@@ -1,0 +1,32 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: envoy-proxy
+  namespace: kube-system
+  labels:
+    k8s-app: envoy-proxy
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9900"
+spec:
+  hostNetwork: true
+  containers:
+    - name: envoy-proxy
+      image: envoyproxy/envoy-alpine:latest
+      imagePullPolicy: IfNotPresent
+      resources:
+        limits:
+          cpu: 25m
+          memory: 32M
+        requests:
+          cpu: 25m
+          memory: 32M
+      volumeMounts:
+        - mountPath: /etc/envoy
+          name: etc-envoy
+          readOnly: true
+  volumes:
+    - name: etc-envoy
+      hostPath:
+        path: /etc/envoy

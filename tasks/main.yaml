@@ -1,0 +1,30 @@
+---
+- name: envoy-proxy | Make envoy directory
+  file:
+    path: /etc/envoy
+    state: directory
+    owner: root
+    mode: 0755
+  when: "'kube-master' not in group_names"
+
+- name: envoy-proxy | Write configuration
+  template:
+    src: envoy.yaml.j2
+    dest: "/etc/envoy/envoy.yaml"
+    owner: root
+    mode: 0644
+  when: "'kube-master' not in group_names"
+
+- name: envoy-proxy | Remove nginx-proxy pod
+  file:
+    path: /etc/kubernetes/manifests/nginx-proxy.yml
+    state: absent
+  when: "'kube-master' not in group_names"
+
+- name: envoy-proxy | Write static pod
+  copy:
+    src: envoy-proxy.yaml
+    dest: "/etc/kubernetes/manifests/envoy-proxy.yaml"
+    owner: root
+    mode: 0644
+  when: "'kube-master' not in group_names"
